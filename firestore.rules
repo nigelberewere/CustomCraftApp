@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is accessing their own document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function to check if user has a worker document
+    function hasWorkerDocument() {
+      return exists(/databases/$(database)/documents/workers/$(request.auth.uid));
+    }
+
+    // Workers collection rules
+    match /workers/{userId} {
+      // Allow reading worker documents if:
+      // 1. User is reading their own document OR
+      // 2. User already has a worker document
+      allow read: if isAuthenticated() && (
+        isOwner(userId) || hasWorkerDocument()
+      );
+      
+      // Allow creation of worker document if:
+      // 1. User is creating their own document AND
+      // 2. Their worker document doesn't exist yet AND
+      // 3. The data contains required fields
+      allow create: if isAuthenticated() 
+        && userId == request.auth.uid 
+        && !hasWorkerDocument()
+        && request.resource.data.keys().hasAll(['name', 'username', 'isAdmin'])
+        && request.resource.data.isAdmin == false;  // New users can't be admins
+      
+      // Allow updates to own document if they're not trying to make themselves admin
+      allow update: if isOwner(userId) 
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin']));
+    }
+
+    // Pending attendances rules
+    match /pending_attendances/{document=**} {
+      // Allow read/write if user is authenticated (either has worker doc or is new)
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Default rule for other collections - must have a worker document
+    match /{document=**} {
+      allow read, write: if isAuthenticated() && hasWorkerDocument();
+    }
+  }
+}

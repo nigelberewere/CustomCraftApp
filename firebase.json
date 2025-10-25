@@ -1,0 +1,46 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "customcraftapp",
+          "appId": "1:1072334388749:android:b1012b4a42d47266c45f44",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "customcraftapp",
+          "configurations": {
+            "android": "1:1072334388749:android:b1012b4a42d47266c45f44",
+            "ios": "1:1072334388749:ios:c16b3d3255e60a12c45f44",
+            "macos": "1:1072334388749:ios:c16b3d3255e60a12c45f44",
+            "web": "1:1072334388749:web:1d568988c632ef68c45f44",
+            "windows": "1:1072334388749:web:4cbffedc45b7f47ec45f44"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
