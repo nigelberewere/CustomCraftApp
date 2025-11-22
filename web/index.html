@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
 
-  <script src="https://www.google.com/recaptcha/api.js?render=6LdUhNQrAAAAAFSMxln3w5DPx3MlwPgnbAXCW3yM"></script>
-<script>
-  window.flutterRecaptchaSiteKey = "6LdUhNQrAAAAAFSMxln3w5DPx3MlwPgnbAXCW3yM";
-</script>
+<head>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ld_YAAsAAAAAAZb1Imug35f-tK5bq6fEWrCgAQP"></script>
+  <script>
+    function onClick(e) {
+      e.preventDefault();
+      grecaptcha.enterprise.ready(async () => {
+        const token = await grecaptcha.enterprise.execute('6Ld_YAAsAAAAAAZb1Imug35f-tK5bq6fEWrCgAQP', { action: 'LOGIN' });
+      });
+    }
+  </script>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -24,7 +29,8 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
-  <meta name="google-signin-client_id" content="1072334388749-6pi1f3issjagadgc1gl2pap3l3re7t64.apps.googleusercontent.com">
+  <meta name="google-signin-client_id"
+    content="1072334388749-6pi1f3issjagadgc1gl2pap3l3re7t64.apps.googleusercontent.com">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -33,7 +39,7 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>CustomCraft App</title>
   <link rel="manifest" href="manifest.json">
@@ -41,7 +47,7 @@
   <!-- Firebase Configuration -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js"></script>
-  
+
   <script>
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -58,7 +64,9 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 </head>
+
 <body>
   <script src="flutter_bootstrap.js" async></script>
 </body>
+
 </html>

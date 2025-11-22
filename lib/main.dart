@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:provider/provider.dart';
 import 'pages/splash_page.dart';
 import 'theme_notifier.dart';
@@ -28,15 +29,18 @@ Future<void> _initializeApp() async {
       const Settings(persistenceEnabled: true);
 
   // App Check initialization remains the same
-  await FirebaseAppCheck.instance.activate(
-    providerWeb: ReCaptchaV3Provider(
-      '6LdUhNQrAAAAAFSMxln3w5DPx3MlwPgnbAXCW3yM',
-    ),
-    // Use the new providerAndroid parameter which accepts provider classes
-    // (the older `androidProvider` parameter expects the AndroidProvider enum
-    // and is deprecated).
-    providerAndroid: const AndroidDebugProvider(),
-  );
+  if (kIsWeb) {
+    await FirebaseAppCheck.instance.activate(
+      providerWeb: ReCaptchaEnterpriseProvider(
+        '6Ld_YAAsAAAAAAZb1Imug35f-tK5bq6fEWrCgAQP',
+      ),
+    );
+  } else {
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: const AndroidDebugProvider(),
+      // Add providerApple if needed
+    );
+  }
 }
 
 class SuperApp extends StatelessWidget {
