@@ -18,9 +18,8 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
   Map<String, double>? _results;
 
   // NEW: A reference to the single document where settings are stored
-  final _settingsRef = FirebaseFirestore.instance
-      .collection('settings')
-      .doc('company_config');
+  final _settingsRef =
+      FirebaseFirestore.instance.collection('settings').doc('company_config');
 
   Future<void> _saveSetting(String key, dynamic value) async {
     // Use .set with merge:true to create or update the field
@@ -34,6 +33,7 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
     required bool showHalfSpan,
     required bool showRoofingSheet,
     required double roofingOverlap,
+    required double rafterEve,
   }) {
     if (_formKey.currentState!.validate()) {
       final double span = double.parse(_spanController.text);
@@ -42,25 +42,25 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
       final double halfSpan = span / 2;
       final double pitchRadians = pitch * (pi / 180);
 
-      final double rafterLength = halfSpan / cos(pitchRadians);
+      final double rafterLength = (halfSpan / cos(pitchRadians)) + rafterEve;
       final double kingPostLength = halfSpan * tan(pitchRadians);
-      final double roofingSheetLength = rafterLength + roofingOverlap;
+      final double roofingSheetLength = (halfSpan / cos(pitchRadians)) + roofingOverlap;
 
       setState(() {
         _results = {};
         _results!['King Post'] = kingPostLength;
-            if (showHalfSpan) {
-              _results!['Half Span'] = halfSpan;
-            }
-            if (showTieBeam) {
-              _results!['Tie Beam'] = span;
-            }
-            if (showRafter) {
-              _results!['Rafter (x2)'] = rafterLength;
-            }
-            if (showRoofingSheet) {
-              _results!['Roofing Sheet Length'] = roofingSheetLength;
-            }
+        if (showHalfSpan) {
+          _results!['Half Span'] = halfSpan;
+        }
+        if (showTieBeam) {
+          _results!['Tie Beam'] = span;
+        }
+        if (showRafter) {
+          _results!['Rafter (x2)'] = rafterLength;
+        }
+        if (showRoofingSheet) {
+          _results!['Roofing Sheet Length'] = roofingSheetLength;
+        }
       });
     }
   }
@@ -88,6 +88,38 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
               if (value != null && value >= 0) {
                 // Call the new save function
                 _saveSetting('calc_roofingOverlap', value);
+                Navigator.of(ctx).pop();
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRafterEveDialog(double currentEve) {
+    final controller = TextEditingController(text: currentEve.toString());
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Set Rafter Eve'),
+        content: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Eve (meters)'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text);
+              if (value != null && value >= 0) {
+                // Call the new save function
+                _saveSetting('calc_rafterEve', value);
                 Navigator.of(ctx).pop();
               }
             },
@@ -135,6 +167,8 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
             settings['calc_showRoofingSheet'] as bool? ?? true;
         final roofingOverlap =
             (settings['calc_roofingOverlap'] as num?)?.toDouble() ?? 0.5;
+        final rafterEve =
+            (settings['calc_rafterEve'] as num?)?.toDouble() ?? 0.0;
 
         return Scaffold(
           appBar: AppBar(
@@ -176,6 +210,9 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
                     if (value == 'set_overlap') {
                       _showOverlapDialog(roofingOverlap);
                     }
+                    if (value == 'set_rafter_eve') {
+                      _showRafterEveDialog(rafterEve);
+                    }
                   },
                   itemBuilder: (context) => <PopupMenuEntry<String>>[
                     CheckedPopupMenuItem<String>(
@@ -207,7 +244,13 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
                     const PopupMenuDivider(),
                     PopupMenuItem<String>(
                       value: 'set_overlap',
-                      child: Text('Set Overlap (${roofingOverlap}m)'),
+                      child: Text(
+                          'Set Overlap (${roofingOverlap.toStringAsFixed(2)}m)'),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'set_rafter_eve',
+                      child: Text(
+                          'Set Rafter Eve (${rafterEve.toStringAsFixed(2)}m)'),
                     ),
                   ],
                 ),
@@ -254,6 +297,7 @@ class _TrussCalculatorPageState extends State<TrussCalculatorPage> {
                       showHalfSpan: showHalfSpan,
                       showRoofingSheet: showRoofingSheet,
                       roofingOverlap: roofingOverlap,
+                      rafterEve: rafterEve,
                     ),
                     icon: const Icon(Icons.calculate_outlined),
                     label: const Text('Calculate'),

@@ -26,7 +26,6 @@ class FirestoreFields {
   static const String isPlaceholder = 'isPlaceholder';
   static const String uid = 'uid';
 
-
   // Project
   static const String startDate = 'startDate';
   static const String endDate = 'endDate';
@@ -63,6 +62,7 @@ class FirestoreFields {
   static const String calcShowHalfSpan = 'calc_showHalfSpan';
   static const String calcShowRoofingSheet = 'calc_showRoofingSheet';
   static const String calcRoofingOverlap = 'calc_roofingOverlap';
+  static const String calcRafterEve = 'calc_rafterEve';
 
   // Personal Project
   static const String ownerUid = 'ownerUid';

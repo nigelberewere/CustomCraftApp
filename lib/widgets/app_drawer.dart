@@ -34,6 +34,11 @@ class _AppDrawerState extends State<AppDrawer> {
     launchUrl(emailLaunchUri);
   }
 
+  void _launchDeveloperWebsite() {
+    final Uri url = Uri.parse('https://nigelberewere.me');
+    launchUrl(url, mode: LaunchMode.externalApplication);
+  }
+
   void _showAboutDialog() async {
     final packageInfo = await PackageInfo.fromPlatform();
 
@@ -84,6 +89,23 @@ class _AppDrawerState extends State<AppDrawer> {
             subtitle: Text(
               '+263 78 050 7162 \n+263 71 542 6206 \nnigelberewere@gmail.com',
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Website'),
+            subtitle: Text(
+              'nigelberewere.me',
+              style: TextStyle(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+                decorationColor: Colors.blue,
+                fontSize: 16,
+              ),
+            ),
+            onTap: () {
+              // Close dialog first if desired, or just launch
+              _launchDeveloperWebsite();
+            },
           ),
         ],
       ),
